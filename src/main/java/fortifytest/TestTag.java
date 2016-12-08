@@ -1,6 +1,7 @@
 package fortifytest;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -38,19 +39,30 @@ public class TestTag extends SimpleTagSupport {
 	public void doTag() throws JspException, IOException {
 		Map<String, String> hiddenFields;
 
-		JspWriter out = getJspContext().getOut();
-		out.println("Captured: " + property + "<br/>");
-		String hiddenFieldMarker = (String)getJspContext().getAttribute("hiddenFieldMarker", PageContext.PAGE_SCOPE);
-		
-		if(hiddenFieldMarker == null){
-			hiddenFieldMarker = UUID.randomUUID().toString();
-			hiddenFields = new HashMap<String, String>();
-			getJspContext().setAttribute("hiddenFieldMarker", hiddenFieldMarker, PageContext.PAGE_SCOPE);
-			getJspContext().setAttribute("hiddenFileds", hiddenFields, PageContext.SESSION_SCOPE);
-		} else {
-			hiddenFields = (Map<String, String>)getJspContext().getAttribute("hiddenFileds", PageContext.SESSION_SCOPE);
+		try {
+			String hiddenFieldMarker = (String)getJspContext().getAttribute("hiddenFieldMarker", PageContext.PAGE_SCOPE);
+			
+			if(hiddenFieldMarker == null){
+				hiddenFieldMarker = UUID.randomUUID().toString();
+				String hash = HashUtils.md5(hiddenFieldMarker);
+				JspWriter out = getJspContext().getOut();
+
+				out.write("<input type='hidden' value='" + hash + "' name='field_marker' />");
+				hiddenFields = new HashMap<String, String>();
+				hiddenFields.put("FIELDMARKER", hiddenFieldMarker);
+				
+				getJspContext().setAttribute("hiddenFieldMarker", hiddenFieldMarker, PageContext.PAGE_SCOPE);
+				getJspContext().setAttribute("hiddenFileds", hiddenFields, PageContext.SESSION_SCOPE);
+			} else {
+				hiddenFields = (Map<String, String>)getJspContext().getAttribute("hiddenFileds", PageContext.SESSION_SCOPE);
+			}
+			
+			hiddenFields.put(getProperty(), getValue());
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-		hiddenFields.put(getProperty(), getValue());
 	}
+	
+
 }

@@ -40,7 +40,7 @@ public class TestWrapper extends HttpServletRequestWrapper {
 	public Enumeration getParameterNames() {
 		Set parameterNames = new HashSet();
 		if(hiddenFields != null){
-			parameterNames = hiddenFields.keySet();
+			parameterNames.addAll(hiddenFields.keySet());
 		}
 		Enumeration e = super.getParameterNames();
 		while(e.hasMoreElements()){
