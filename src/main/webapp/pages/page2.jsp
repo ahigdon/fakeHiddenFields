@@ -11,6 +11,7 @@
 <li/><bean:write name="testRepopulateForm" property="hiddenField3" />
 <li/><bean:write name="testRepopulateForm" property="hiddenField4" />
 <li/><bean:write name="testRepopulateForm" property="hiddenField5" />
+<li/><bean:write name="testRepopulateForm" property="hiddenField6" />
 
 </body>
 </html>

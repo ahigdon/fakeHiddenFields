@@ -13,6 +13,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -40,7 +41,9 @@ public class TestFilter implements Filter {
 					HttpServletRequestWrapper wrapper = new TestWrapper(httpRequest, hiddenFields);
 					fc.doFilter(wrapper, resp);
 				} else {
-					//ERROR
+					if (!resp.isCommitted()){
+						((HttpServletResponse)resp).sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request made, unknown state");
+					}
 				}
 			} else {
 				fc.doFilter(request, resp);
@@ -64,7 +67,7 @@ public class TestFilter implements Filter {
 	private boolean isMatchingRequest(String fieldMarker, Map<String, String> hiddenFields) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		String sessionMarker = hiddenFields.get("FIELDMARKER");
 		
-		return StringUtils.isNotEmpty(sessionMarker) && HashUtils.md5(sessionMarker).equals(fieldMarker);
+		return StringUtils.isNotEmpty(sessionMarker) && HashUtils.sha256(sessionMarker).equals(fieldMarker);
 	}
 
 }
